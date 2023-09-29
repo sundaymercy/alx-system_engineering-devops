@@ -1,1 +1,4 @@
-https://imgur.com/a/jQOG6Ok
+# pkill on process killmenow
+exec { 'pkill -f killmenow':
+    path     => ['/usr/bin', '/usr/sbin',],
+}
