@@ -1,12 +1,24 @@
 #!/usr/bin/env bash
-# Installing Nginx on Server and 404 page
-sudo apt-get update -y && sudo apt-get upgrade -y
-sudo apt-get install -y nginx
-sudo chown -R "$USER":"$USER" /var/www/
-sudo chown -R "$USER":"$USER" /etc/nginx
-echo "Hello World!" > /var/www/html/index.nginx-debian.html
-echo "Ceci n'est pas une page" | sudo tee /usr/share/nginx/html/404.html
-line="\\\terror_page 404 /404.html;\n\tlocation = /404.html {\n\t\troot /usr/share/nginx/html;\n\t\tinternal;\n\t}"
-sudo sed -i "27i $line" /etc/nginx/sites-available/default
+# Script that configures a new Ubuntu machine
+if ! nginx -v; then
+apt-get update
+apt-get install -y nginx
+fi
+
+echo "Hello World!" > /var/www/html/index.html
+str="server_name _;\n\tlocation \/redirect_me {\n\t\t return 301 https:\/\/www.youtube.com\/watch?v=QH2-TGUlwu4;\n\t}"
+sed -i "s/server_name _;/$str/" /etc/nginx/sites-available/default
+
+# setting up 404
+echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html
+replacement="\\
+\terror_page 404 /404.html;\\
+\tlocation = /404.html {\\
+\t\troot /var/www/html;\\
+\t\tinternal;\\
+\t}"
+sudo sed -i '/listen 80 default_server;/a '"$replacement"'' /etc/nginx/sites-available/default
+
+ufw allow 'NGINX Full'
+# restart the server
 sudo service nginx restart
-sudo service nginx reload
