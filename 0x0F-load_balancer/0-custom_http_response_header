@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2154
-#configures a new Ubuntu machine nginx
-sudo apt-get update
-sudo apt-get install nginx -y
-sudo ufw allow 'Nginx HTTP'
-echo "sunday mercy" | sudo tee /var/www/html/index.nginx-debian.html
-new_string="listen 80 default_server;\\n\\tlocation \/redirect_me {\\n\\t\\treturn 301 https:\/\/www.youtube.com\/;\\n\\t}"
-sudo sed -i "s/listen 80 default_server;/$new_string/" /etc/nginx/sites-enabled/default
-echo "Ceci n'est pas une page" | sudo tee /usr/share/nginx/html/404.html
-new_string="listen 80 default_server;\\nerror_page 404 \/404.html;\\n\\tlocation = \/404.html {\\n\\t\\troot \/usr\/share\/nginx\/html;\\n\\t\\tinternal;\\n\\t}"
-sudo sed -i "s/listen 80 default_server;/$new_string/" /etc/nginx/sites-enabled/default
-new_string2="http {\\n\\tadd_header X-Served-By \"$HOSTNAME\";"
-sudo sed -i "s/http {/$new_string2/" /etc/nginx/nginx.conf
-sudo service nginx start
+#Double the number of webservers
+sudo apt-get -y update
+sudo apt-get -y install nginx
+#sudo wget -q -O /etc/nginx/sites-available/default http://exampleconfig.com/static/raw/nginx/ubuntu20.04/etc/nginx/sites-available/default
+config="/etc/nginx/sites-available/default"
+sudo sh -c "echo 'Hello World!' > /var/www/html/index.nginx-debian.html"
+sudo sed -i '/^}$/i \ \n\tlocation \/redirect_me {return 301 https:\/\/www.youtube.com\/watch?v=QH2-TGUlwu4;}' $config
+sudo sed -i '/^}$/i \ \n\tlocation @404 {return 404 "Ceci n'\''est pas une page\\n";}' $config
+sudo sed -i 's/=404/@404/g' $config
+sudo sed -i "0,/location \/ {/s/location \/ {/&\n\t\tadd_header X-Served-By '$HOSTNAME';/" $config
+sudo service nginx restart
+
