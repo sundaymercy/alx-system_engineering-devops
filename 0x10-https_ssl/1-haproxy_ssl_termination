@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 global
         log /dev/log    local0
         log /dev/log    local1 notice
@@ -49,7 +50,7 @@ frontend www-http
         reqadd X-Forwarded-Proto:\ http
         default_backend web-backend
 frontend www-https
-        bind :443 ssl crt /etc/haproxy/certs/lb-01.starjakes.tech.pem
+        bind :443 ssl crt /etc/haproxy/certs/lb-01.sundaymercy.tech.pem
         reqadd X-Forwarded-Proto:\ https
         default_backend web-backend
 backend web-backend
